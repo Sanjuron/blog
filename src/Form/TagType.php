@@ -2,7 +2,9 @@
 
 namespace App\Form;
 
+use App\Entity\Post;
 use App\Entity\Tag;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -13,7 +15,17 @@ class TagType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('posts')
+            ->add('posts', EntityType::class, [
+                // looks for choices from this entity
+                'class' => Post::class,
+            
+                // uses the User.username property as the visible option string
+                'choice_label' => 'title',
+            
+                // used to render a select box, check boxes or radios
+                'multiple' => true,
+                // 'expanded' => true,
+            ]);
         ;
     }
 
@@ -23,4 +35,5 @@ class TagType extends AbstractType
             'data_class' => Tag::class,
         ]);
     }
+
 }

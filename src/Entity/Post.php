@@ -31,6 +31,7 @@ class Post
      */
     private $body;
 
+
     /**
      * @ORM\Column(type="date")
      */
@@ -115,4 +116,6 @@ class Post
 
         return $this;
     }
+
+   
 }
