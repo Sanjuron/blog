@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\TagRepository;
+use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,10 +11,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 /**
- * @ORM\Entity(repositoryClass=TagRepository::class)
+ * @ORM\Entity(repositoryClass=CategoryRepository::class)
  * @UniqueEntity("name")
  */
-class Tag
+class Category
 {
     /**
      * @ORM\Id()
@@ -27,12 +27,12 @@ class Tag
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Assert\Regex("/[^0-9]+/")
-     * @Assert\Length(min = 2, max = 50) 
+     * @Assert\Length(min = 2, max = 50)
      */
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Post::class, inversedBy="tags")
+     * @ORM\OneToMany(targetEntity=Post::class, mappedBy="category")
      */
     private $posts;
 
@@ -70,6 +70,7 @@ class Tag
     {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
+            $post->setCategory($this);
         }
 
         return $this;
@@ -79,13 +80,12 @@ class Tag
     {
         if ($this->posts->contains($post)) {
             $this->posts->removeElement($post);
+            // set the owning side to null (unless already changed)
+            if ($post->getCategory() === $this) {
+                $post->setCategory(null);
+            }
         }
 
         return $this;
     }
-
-    // public function __toString() 
-    // {
-    //     return $this->name;
-    // }
 }

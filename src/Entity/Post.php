@@ -8,6 +8,7 @@ use \DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class)
@@ -34,17 +35,24 @@ class Post
 
     /**
      * @ORM\Column(type="date")
+     * @Assert\GreaterThanOrEqual("today")
      */
     private $publishDate;
 
     /**
      * @ORM\ManyToMany(targetEntity=Tag::class, mappedBy="posts")
+     * @Assert\Count(min = 0, max = 5)
      */
     private $tags;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="posts")
+     */
+    private $category;
+
     public function __construct() 
     {
-        $publishDate = new DateTime();
+        $this->publishDate = new DateTime();
         $this->tags = new ArrayCollection();
     }
 
@@ -116,6 +124,23 @@ class Post
 
         return $this;
     }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    // public function __toString()
+    // {
+    //     return $this->getTitle();
+    // }
 
    
 }

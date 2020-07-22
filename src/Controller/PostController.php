@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Entity\Tag;
 use App\Form\PostType;
 use App\Repository\PostRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +20,36 @@ class PostController extends AbstractController
     /**
      * @Route("/", name="post_index", methods={"GET"})
      */
-    public function index(PostRepository $postRepository): Response
+    public function index(PaginatorInterface $paginator, PostRepository $postRepository, Request $request): Response
     {
+        $qb = $postRepository->findAll();
+
+        $pagination = $paginator->paginate(
+            $qb, /* query builder NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            5 /*limit per page*/
+        );
+
         return $this->render('post/index.html.twig', [
-            'posts' => $postRepository->findAll(),
+            'pagination' => $pagination,
+        ]);
+    }
+
+    /**
+     * @Route("/tag/{id}", name="post_tag_index", methods={"GET"})
+     */
+    public function tag_index(PaginatorInterface $paginator, PostRepository $postRepository, Request $request, Tag $tag): Response
+    {
+        $qb = $postRepository->findByTag($tag);
+
+        $pagination = $paginator->paginate(
+            $qb, /* query builder NOT result */
+            $request->query->getInt('page', 1), /*page number*/
+            5 /*limit per page*/
+        );
+
+        return $this->render('post/index.html.twig', [
+            'pagination' => $pagination,
         ]);
     }
 
